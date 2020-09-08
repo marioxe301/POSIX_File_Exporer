@@ -8,6 +8,7 @@ class SHELL{
     public:
         SHELL(std::string initial_path);
         SHELL();
+        ~SHELL();
         
         void ls();
         void touch(std::string filename);

@@ -1,9 +1,8 @@
-#include <iostream>
-#include "shell.h"
+#include "X11Engine.h"
 
-using namespace std;
-
-int main(){
-    SHELL shell = SHELL("/home/mgfe/Documentos/SISO2_Project/test/");
+int main(){  
+    X11_Engine engine = X11_Engine();
+    engine.start_loop();
+    
     return 0;
 }
