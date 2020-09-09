@@ -45,20 +45,20 @@ void X11_Engine::start_loop(){
     init_server();
     create_main_window();
     create_main_buttons();
+    add_icon_to_buttons();
     while (1)
     {
         XNextEvent(dpy,&main_event);
         if(main_event.type = Expose){
             draw_grid();
             draw_text_buttons();
-            draw_icon(buttons[0].button,20,10);
+            draw_icons_in_buttons();
         }
     }
     XFlush(dpy);
     XCloseDisplay(dpy);
 }
 void X11_Engine::draw_grid(){
-    draw_line(main_window,init_x,init_y,init_x,DEFAULT_WINDOW_HEIGHT);
     draw_line(main_window,init_x2,init_y2,DEFAULT_WINDOW_WIDTH,init_y2);
 }
 
@@ -82,8 +82,7 @@ void X11_Engine::create_button(int x,int y, int w, int h,long flags,std::string 
     buttons.push_back(btn);
 }
 
-void X11_Engine::draw_icon(Window &window,int x,int y){
-    BITMAP bmp = create_bitmap_object(window,"./img/file.xbm");
+void X11_Engine::draw_icon(Window &window,int x,int y,BITMAP &bmp){
     XColor c = create_color(BUTTON_COLOR);
     XSetForeground(dpy,bmp.gc,bmp.color.pixel);
     XSetBackground(dpy,bmp.gc,c.pixel);
@@ -142,10 +141,30 @@ void X11_Engine::create_main_buttons(){
     create_button(170+BACK_BUTTON_WIDTH,3,BACK_BUTTON_WIDTH,BACK_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Front");
 }
 
+void X11_Engine::add_icon_to_buttons(){
+    std::string icons[]={"./img/home.xbm","./img/folder.xbm","./img/desktop.xbm","./img/downloads.xbm","./img/back.xbm","./img/front.xbm"};
+    for (int i = 0; i < buttons.size(); i++)
+    {
+        BITMAP bmp = create_bitmap_object(buttons[i].button,icons[i]);
+        buttons[i].icon = bmp;
+    }
+}
+
+void X11_Engine::draw_icons_in_buttons(){
+    for (int i = 0; i < buttons.size()-2; i++)
+    {
+        draw_icon(buttons[i].button,10,(DEFAULT_ICON_BUTTON_HEIGHT/2)-20,buttons[i].icon);
+    }
+
+    draw_icon(buttons[4].button,5,5,buttons[4].icon);
+    draw_icon(buttons[5].button,10,5,buttons[5].icon);
+
+}
+
 void X11_Engine::draw_text_buttons(){
     for (int i = 0; i < buttons.size()-2; i++)
     {
-        draw_text(buttons[i].button,buttons[i].text,20,DEFAULT_ICON_BUTTON_WIDTH/2);
+        draw_text(buttons[i].button,buttons[i].text,50,DEFAULT_ICON_BUTTON_HEIGHT/2);
     }
     
 }

@@ -44,16 +44,16 @@ public:
     void create_main_buttons();//D
     void draw_grid();//D
     void clear_screen(Window&window);//D
-    void draw_main_icons_buttons();//P
-    void draw_text_buttons();//P
-    void add_icon_to_button(Window &window,std::string path);//P
+    void draw_icons_in_buttons();
+    void draw_text_buttons();//D
+    void add_icon_to_buttons();//D
 
 
     Window create_window(int x,int y, int w,int h,XColor bg,XColor bd,bool is_child);//D
     void map_window_to_display(Window &window);//D
     void map_events_to_window(Window &window,long flags);//D
     void create_button(int x,int y, int w, int h,long flags,std::string text);//D
-    void draw_icon(Window &window,int x,int y);//P
+    void draw_icon(Window &window,int x,int y,BITMAP &bmp);//P
     void draw_text(Window &window,std::string text,int x,int y);//D
     void draw_line(Window &window,int x1,int y1,int x2, int y2);//D
     XColor create_color(std::string color);//D

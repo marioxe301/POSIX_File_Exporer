@@ -15,10 +15,10 @@
 #define init_y 0
 
 #define init_x2 150
-#define init_y2 40
+#define init_y2 50
 
-#define BACK_BUTTON_WIDTH 40
-#define BACK_BUTTON_HEIGHT 30
+#define BACK_BUTTON_WIDTH 50
+#define BACK_BUTTON_HEIGHT 40
 
 static std::string TITLE="Explorador de Archivos: ";
 
