@@ -49,11 +49,14 @@ void X11_Engine::start_loop(){
     while (1)
     {
         XNextEvent(dpy,&main_event);
-        if(main_event.type = Expose){
-            draw_grid();
-            draw_text_buttons();
-            draw_icons_in_buttons();
+        if(main_event.xany.window == main_window){
+            if(main_event.type == Expose){
+                draw_grid();
+                /*draw_text_in_buttons();
+                draw_icons_in_buttons();*/
+            }
         }
+        event_button_pressed(main_event);
     }
     XFlush(dpy);
     XCloseDisplay(dpy);
@@ -75,10 +78,12 @@ void X11_Engine::create_button(int x,int y, int w, int h,long flags,std::string 
     Window button = create_window(x,y,w,h,color,b_color,true);
     map_events_to_window(button,flags);
     map_window_to_display(button);
+    GC gc = create_graphic_context(button);
 
     BUTTON btn;
     btn.button = button;
     btn.text = text;
+    btn.gc = gc;
     buttons.push_back(btn);
 }
 
@@ -128,17 +133,17 @@ void X11_Engine::clear_screen(Window&window){
 
 void X11_Engine::create_main_buttons(){
     int yposition = 0;
-    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Home");
+    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Home");
     yposition+=DEFAULT_ICON_BUTTON_HEIGHT;
-    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Documents");
+    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Documents");
     yposition+=DEFAULT_ICON_BUTTON_HEIGHT;
-    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Desktop");
+    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Desktop");
     yposition+=DEFAULT_ICON_BUTTON_HEIGHT;
-    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT-2,ExposureMask|KeyPressMask,"Downloads");
+    create_button(0,yposition,DEFAULT_ICON_BUTTON_WIDTH,DEFAULT_ICON_BUTTON_HEIGHT-2,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Downloads");
 
     /*BACK AND FRONT BUTTONS*/
-    create_button(init_x2+10,3,BACK_BUTTON_WIDTH,BACK_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Back");
-    create_button(170+BACK_BUTTON_WIDTH,3,BACK_BUTTON_WIDTH,BACK_BUTTON_HEIGHT,ExposureMask|KeyPressMask,"Front");
+    create_button(init_x2+10,3,BACK_BUTTON_WIDTH,BACK_BUTTON_HEIGHT,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Back");
+    create_button(170+BACK_BUTTON_WIDTH,3,BACK_BUTTON_WIDTH,BACK_BUTTON_HEIGHT,ExposureMask|KeyPressMask|ButtonPressMask|ButtonReleaseMask,"Front");
 }
 
 void X11_Engine::add_icon_to_buttons(){
@@ -161,10 +166,44 @@ void X11_Engine::draw_icons_in_buttons(){
 
 }
 
-void X11_Engine::draw_text_buttons(){
+void X11_Engine::draw_text_in_buttons(){
     for (int i = 0; i < buttons.size()-2; i++)
     {
         draw_text(buttons[i].button,buttons[i].text,50,DEFAULT_ICON_BUTTON_HEIGHT/2);
+    }
+    
+}
+
+void X11_Engine::change_button_color(BUTTON &button){
+    XColor color = create_color(PRESSED_BUTTON_COLOR);
+    XSetWindowBackground(dpy,button.button,color.pixel);
+}
+void X11_Engine::change_default_button_color(BUTTON &button){
+    XColor color = create_color(BUTTON_COLOR);
+    XSetWindowBackground(dpy,button.button,color.pixel);
+}
+
+void X11_Engine::event_button_pressed(XEvent &event){
+    for (int i = 0; i < buttons.size(); i++)
+    {   
+        if(event.xany.window == buttons[i].button){
+            if(event.type == Expose){
+                draw_icons_in_buttons();
+                draw_text_in_buttons();
+            }
+            if(event.type == ButtonPress){
+                if(event.xbutton.button == 1){
+                    change_button_color(buttons[i]);
+                    std::cout<<"P"<<std::endl;
+                }
+            }
+            if(event.type == ButtonRelease){
+                if(event.xbutton.button == 1){
+                    change_button_color(buttons[i]);
+                    std::cout<<"R"<<std::endl;
+                }
+            }
+        }
     }
     
 }
