@@ -4,31 +4,18 @@
 #include <iostream>
 
 SHELL::SHELL(){
-    navigation = convert_path_to_stack(getenv("HOME"));
+    //Nota poner siempre una pleca al final
+    navigation = convert_path_to_stack("/home/mgfe/Documentos/SISO2_Project/rootfld/usr/home/");
 }
 
 SHELL::SHELL(std::string initial_path){
     navigation = convert_path_to_stack(initial_path);
 }
 
-void SHELL::ls(){
+void SHELL::ls(std::vector<std::string>&files,std::vector<std::string>&folder){
     std::string path = convert_stack_to_path(navigation);
-    std::vector<Directory> dirs;
-    std::vector<File> files;
-
-    dirs = get_directories_from_path(path);
     files = get_files_from_path(path);
-
-    for (int i = 0; i < dirs.size(); i++)
-    {
-        std::cout<<"D "<< dirs[i].name<<std::endl;
-    }
-    
-    for (int i = 0; i < files.size(); i++)
-    {
-        std::cout<<files[i].name<<std::endl;
-    }
-    
+    folder = get_directories_from_path(path);
 }
 void SHELL::touch(std::string filename){
     std::string path = convert_stack_to_path(navigation);
@@ -40,17 +27,25 @@ void SHELL::rm_file(std::string filename){
     path+= filename;
     remove_file(path);
 }
+void SHELL::rm_dir(std::string dirname){
+    std::string path = convert_stack_to_path(navigation);
+    path+= dirname;
+    remove_directory(path);
+}
 void SHELL::cd(std::string path){
     if(!navigation.empty()){
         if(path == ".."){
+            if(navigation.back() == "rootfld"){return;}
             navigation.pop_back();
             return;
         }
     }
     if(is_path(path)){
         navigation = convert_path_to_stack(path);
+        return;
     }else{
         navigation.push_back(path);
+        return;
     }
 }
 void SHELL::mkdir(std::string dir_name){
@@ -67,4 +62,8 @@ void SHELL::mkHlink(std::string source,std::string link){
 void SHELL::mkSlink(std::string source,std::string link){
     std::string path = convert_stack_to_path(navigation);
     create_symbolic_link(path+link,source);
+}
+
+std::string SHELL::get_folder_name(){
+    return navigation.back();
 }

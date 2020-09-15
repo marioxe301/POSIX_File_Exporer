@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <experimental/filesystem>
 
 void create_file(std::string filename){
     int fd;
@@ -28,13 +29,14 @@ void make_directory(std::string directory){
 
 void remove_file(std::string filename){
     if(remove(filename.c_str())!=-1){
-         std::cout<< "Archivo Removido"<<std::endl;
+         std::cout<< "Archivo Removido: "<<filename<<std::endl;
         return;
     }
     std::cout<< "Fallo al eliminar Archivo"<<std::endl;
 }
 void remove_directory(std::string directory){
-
+    std::experimental::filesystem::remove_all(directory);
+    std::cout<< "Carpeta Removida: "<<directory<<std::endl;
 }
 void create_hard_link(std::string link_name,std::string source){
     if(link(source.c_str(),link_name.c_str())!=-1){
@@ -58,38 +60,30 @@ void open_file(std::string filename){
     system(program);
 }
 
-std::vector<File> get_files_from_path(std::string path){
-    std::vector<File> files;
-    File file;
+std::vector<std::string> get_files_from_path(std::string path){
+    std::vector<std::string> files;
     DIR * dir_pointer = opendir(path.c_str());
     struct dirent *dp;
     while((dp = readdir(dir_pointer)) != NULL){
         if(dp->d_name[0]!='.'){
             if(dp->d_type == DT_REG ){
                 std::string _name(dp->d_name);
-                file.name = _name;
-                file.x = 0;
-                file.y = 0;
-                files.push_back(file);
+                files.push_back(_name);
             }
         }
     }
     closedir(dir_pointer);
     return files;
 }
-std::vector<Directory> get_directories_from_path(std::string path){
-    std::vector<Directory> directories;
-    Directory directory;
+std::vector<std::string> get_directories_from_path(std::string path){
+    std::vector<std::string> directories;
     DIR * dir_pointer = opendir(path.c_str());
     struct dirent *dp;
     while((dp = readdir(dir_pointer)) != NULL){
         if(dp->d_name[0]!='.'){
             if(dp->d_type == DT_DIR){
                 std::string _name(dp->d_name);
-                directory.name = _name;
-                directory.x = 0;
-                directory.y = 0;
-                directories.push_back(directory);
+                directories.push_back(_name);
             }
         }
     }

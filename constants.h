@@ -21,6 +21,21 @@
 #define BACK_BUTTON_WIDTH 50
 #define BACK_BUTTON_HEIGHT 40
 
-static std::string TITLE="Explorador de Archivos: ";
+#define MARGIN_FILE 10
+#define INITIAL_Y_FILE 50
+#define INITIAL_X_FILE 150
+#define FILE_SIZE 80
+
+#define ACTIONS_SIZE 30
+
+#define ACTIONS_MARGIN_SIDE 10
+#define ACTIONS_MARGIN_VERTICAL 10
+#define INITIAL_ACTION_X 950
+#define INITIAL_ACTION_Y 50
+
+#define TEXT_BOX_WIDTH 770
+#define TEXT_BOX_HEIGTH 40
+static std::string TITLE="Explorador de Archivos:  ";
+static std::string TEXTBOX_NAME = "Nombre:  ";
 
 #endif
