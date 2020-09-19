@@ -55,15 +55,36 @@ void SHELL::mkdir(std::string dir_name){
 }
 
 void SHELL::mkHlink(std::string source,std::string link){
-    std::string path = convert_stack_to_path(navigation);
-    create_hard_link(path+link,path+source);
+    create_hard_link(link,source);
 }
 
 void SHELL::mkSlink(std::string source,std::string link){
-    std::string path = convert_stack_to_path(navigation);
-    create_symbolic_link(path+link,source);
+    create_symbolic_link(link,source);
 }
 
 std::string SHELL::get_folder_name(){
     return navigation.back();
+}
+
+void SHELL::open(std::string filename){
+    std::string path = convert_stack_to_path(navigation);
+    open_file(path+filename);
+}
+
+std::string SHELL::get_absolute_path(){
+    std::string path = convert_stack_to_path(navigation);
+    return path;
+}
+
+void SHELL::cp_file(std::string from,std::string to){
+    copy_file(from,to);
+}
+void SHELL::cp_folder(std::string from,std::string to){
+    copy_directory(from,to);
+}
+void SHELL::mv_file(std::string from,std::string to){
+    move_file(from,to);
+}
+void SHELL::mv_folder(std::string from,std::string to){
+    move_directory(from,to);
 }

@@ -12,6 +12,7 @@ X11_Engine::X11_Engine()
     desktop_path = "/home/mgfe/Documentos/SISO2_Project/rootfld/usr/home/Desktop/";
     home_path = "/home/mgfe/Documentos/SISO2_Project/rootfld/usr/home/";
     created = false;
+    click_counter = 0;
 }
 
 X11_Engine::X11_Engine(std::string path){ shell = new SHELL(path);}
@@ -288,11 +289,48 @@ void X11_Engine::event_button_pressed(XEvent &event){
                         }else{
                             shell->rm_file(selected_item);
                         }
+                    }else if((buttons[i].text == "Copy") && !selected_item.empty()){
+                        from_path = shell->get_absolute_path() + selected_item;
+                        std::cout<< "From_path :"+from_path<<std::endl;
+                        is_copy = true;
+                        is_cut = false;
+                    }else if(buttons[i].text == "Cut" && !selected_item.empty()){
+                        from_path = shell->get_absolute_path() + selected_item;
+                        std::cout<< "From_path :"+from_path<<std::endl;
+                        is_copy = false;
+                        is_cut = true;
+                    }else if(buttons[i].text == "Paste" && !selected_item.empty() && !from_path.empty()){
+                        if(is_directory && is_copy){
+
+                            to_path = shell->get_absolute_path()+"copia_f";
+                            shell->cp_folder(from_path,to_path);
+                        }else if(is_directory && is_cut){
+                            to_path = shell->get_absolute_path() + selected_item;
+                            shell->mv_folder(from_path,to_path);
+                        }else if( !is_directory && is_copy){
+                            to_path = shell->get_absolute_path()+ selected_item;
+                            shell->cp_file(from_path,to_path);
+                        }else if(!is_directory && is_cut){
+                            to_path = shell->get_absolute_path()+selected_item;
+                            shell->mv_file(from_path,to_path);
+                        }
+                        std::cout<< "to_path :"+to_path<<std::endl;
+                    }else if(buttons[i].text == "Hard Link" && !selected_item.empty() && !input_text.empty() && !from_path.empty()){
+                        if(is_directory){
+                            std::cout<<"No se puede realizar links duros en Carpeta"<<std::endl;
+                        }else{
+                            to_path = shell->get_absolute_path() + input_text;
+                            shell->mkHlink(from_path,to_path);
+                        }
+                    }else if(buttons[i].text == "Symbolic Link" && !selected_item.empty() && !input_text.empty() && !from_path.empty()){
+                        to_path = shell->get_absolute_path()+ input_text;
+                        shell->mkSlink(from_path,to_path);
                     }
                     clear_button_file();
                     draw_button_file(created);
                     std::cout<<buttons[i].text + " Released"<<std::endl;
                     created = false;
+                    input_text.empty();
                 }
             }
         }
@@ -342,6 +380,17 @@ void X11_Engine::draw_button_file(bool flag){
     int y = INITIAL_Y_FILE + MARGIN_FILE;
     
     get_files(_files,_directories);
+
+    /*Remover duplicados*/
+    for (int i = 0; i < _directories.size(); i++)
+    {
+        std::string tmp = _directories[i];
+        for(int j=0;j<_files.size(); j++){
+            if(tmp == _files[j]){
+                _files.erase(_files.begin()+j);
+            }
+        }
+    }
     
     FILEVIEW fv;
     for (int i = 0; i < _directories.size(); i++)
@@ -435,12 +484,23 @@ void X11_Engine::file_button_pressed(XEvent &event){
                 if(event.type == ButtonPress){
                     if(event.xbutton.button == Button3){ 
                     }
+                    if(event.xbutton.button == Button1){
+                        click_counter++;
+                    }
                 }
                 if(event.type == ButtonRelease){
                     if(event.xbutton.button == Button3){
                         selected_item = files_in_path[i].file.text;
                         std::cout<<files_in_path[i].file.text+" Selected"<<std::endl;
                         is_directory = false;
+                    }
+                    if(event.xbutton.button == Button1){
+                        if(click_counter >= 2){
+                            selected_item = files_in_path[i].file.text;
+                            std::cout<<"Opening "+files_in_path[i].file.text<<std::endl;
+                            shell->open(selected_item);
+                            click_counter = 0;
+                        }
                     }
                 }
             }

@@ -53,6 +53,11 @@ private:
     std::string input_text;
     Window text_box;
     bool created;
+    int click_counter;
+    bool is_copy, is_cut;
+
+    std::string from_path;
+    std::string to_path;
 
 public:
     X11_Engine(std::string path);

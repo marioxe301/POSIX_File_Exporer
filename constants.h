@@ -38,4 +38,6 @@
 static std::string TITLE="Explorador de Archivos:  ";
 static std::string TEXTBOX_NAME = "Nombre:  ";
 
+
+#define BUFFER_SIZE 65536
 #endif

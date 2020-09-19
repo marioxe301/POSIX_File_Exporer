@@ -19,8 +19,15 @@ class SHELL{
         void mkHlink(std::string source,std::string link);
         void mkSlink(std::string source,std::string link);
 
+        void open(std::string filename);
+
         //Extra Functions
         std::string get_folder_name();
+        std::string get_absolute_path();
+        void cp_file(std::string from,std::string to);
+        void cp_folder(std::string from,std::string to);
+        void mv_file(std::string from,std::string to);
+        void mv_folder(std::string from,std::string to);
 
     private:
         std::vector<std::string> navigation;

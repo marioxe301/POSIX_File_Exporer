@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <experimental/filesystem>
+#include "constants.h"
 
 void create_file(std::string filename){
     int fd;
@@ -53,11 +54,12 @@ void create_symbolic_link(std:: string link_name, std::string source){
     std::cout<< "Fallo al crear Link Symbolico "<<std::endl;
 }
 void open_file(std::string filename){
-    char *program = new char[ filename.size() + 5];
-    strcpy(program,"code ");
+    char *program = new char[ filename.size() + 9];
+    strcpy(program,"xdg-open ");
     strcat(program,filename.c_str());
 
     system(program);
+    free(program);
 }
 
 std::vector<std::string> get_files_from_path(std::string path){
@@ -66,7 +68,7 @@ std::vector<std::string> get_files_from_path(std::string path){
     struct dirent *dp;
     while((dp = readdir(dir_pointer)) != NULL){
         if(dp->d_name[0]!='.'){
-            if(dp->d_type == DT_REG ){
+            if(dp->d_type == DT_REG | DT_LNK ){
                 std::string _name(dp->d_name);
                 files.push_back(_name);
             }
@@ -92,17 +94,37 @@ std::vector<std::string> get_directories_from_path(std::string path){
 }
 
 void copy_file(std::string filename,std::string newpath){
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP| S_IWGRP | S_IWOTH | S_IROTH;
+    int src, dest,in ,out;
+    char buffer[BUFFER_SIZE];
+    src = open(filename.c_str(), O_RDONLY); if(src<0){std::cout<<"Error al abrir el archivo"<<std::endl; return;}
+    dest = creat(newpath.c_str(),mode); if (dest < 0){ std::cout<<"Error al crear archivo"<<std::endl;return;}
 
+    while (true)
+    {
+        in = read(src,buffer,BUFFER_SIZE);
+        if (in <= 0) break;
+        out = write(dest,buffer,in);
+        if(out<=0) break;
+    }
+
+    close(src);
+    close(dest);
 }
 
 void copy_directory(std::string dirname, std::string newpath){
-
+    std::experimental::filesystem::copy(dirname,newpath, std::experimental::filesystem::copy_options::recursive | std::experimental::filesystem::copy_options::overwrite_existing );
+    std::cout<<"Carpeta Copiada"<<std::endl;
 }
 
 void move_file(std::string filename,std::string newpath){
-
+    if(rename(filename.c_str(),newpath.c_str())!= -1){
+        std::cout<<"Archivo Movido"<<std::endl;
+        return;
+    }
+    std::cout<<"Error al mover Archivo"<<std::endl;
 }
 
 void move_directory(std::string dirname, std::string newpath){
-
+    std::experimental::filesystem::rename(dirname,newpath);
 }
